@@ -108,9 +108,26 @@ class GameController extends Controller
         // This function needs to return null if nobody has won yet - you can use someoneHasWon( $game ) for this.
         // If someone has won, it needs to return either GamePlayer::Human or GamePlayer::Robot.
         // =============================================================================================================
-
+        if (!$this->someoneHasWon($game)) {
         return null;
     }
+
+    
+    for ($i = 0; $i < 3; $i++) {
+        for ($j = 0; $j < 3; $j++) {
+
+            $mark = $game->getRow($i)->getSpace($j);
+
+            if ($mark !== GameMark::None) {
+                return $mark === GameMark::Circle
+                    ? GamePlayer::Human
+                    : GamePlayer::Robot;
+            }
+        }
+    }
+
+    return null;
+}
 
     /**
      * Is the given player allowed to take the next turn?
@@ -131,8 +148,11 @@ class GameController extends Controller
         // GamePlayer::Human (the last move was made by the player) or GamePlayer::None (this is the first move).
         // Inside of $player you have the player which wants to play now.
         // If he is allowed to play, you have to return true, otherwise you have to return false.
-
+        $lastplayer = $game-> getLastPlayer();
+        if ($lastplayer === null) {
         return true;
+    }
+    return $lastplayer !== $player; 
     }
 
     /**
@@ -175,17 +195,19 @@ class GameController extends Controller
         // Once all the checks have passed, you can finally update the game board by calling
         // $game->setSpace( $x, $y, GameMark::Circle ).
         // [ The code to check if the space is free goes here ]
-        if ($game->getSpace($x, $y) === Empty) {
-    $game->setSpace($x, $y, GameMark::Circle);
+        if ($game->getSpace($x, $y) !== GameMark::None) {
+                      
 }
 
         // If the space is not free, run the code in the line below by removing the //
         //return response("This space has already been claimed!")->setStatusCode(403)->header('Content-Type', 'text/plain');
 
         // [ The code to update the game board goes here ]
-           if ($game->getSpace($x, $y) !== GameMark::Empty) {
+           if ($game->getSpace($x, $y) !== GameMark::None) {
             return response("This space has already been claimed!")->setStatusCode(403)->header('Content-Type', 'text/plain');
            }
+           $game->setSpace($x, $y, GameMark::Circle);
+           
         // Saving the game board and output it to the player
         $game->save();
         return $this->status_output( $game );
@@ -234,7 +256,10 @@ class GameController extends Controller
         $randomFreeSpaceXY = Arr::random($freeSpaces);
 
         // mark field with a cross
-        $game->setSpace($randomFreeSpaceXY['x'], $randomFreeSpaceXY['y'], GameMark::Cross);
+        $game->setSpace($randomFreeSpaceXY['x'], $randomFreeSpaceXY['y'], GameMark::Cross); 
+        
+    
+        
 
         // save changed game board
         $game->save();

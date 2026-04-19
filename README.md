@@ -32,7 +32,7 @@ A structogram contains the following structural blocks, that are nested inside o
 
 Every process (or chain of commands), a program should do, are written inside a rectangle block.
 
-### Case distinction
+###  distinction
 ![case](https://upload.wikimedia.org/wikipedia/commons/7/79/Two-Way_Branch.jpg)
 
 If the condition is met (true), instruction 1 will run.
